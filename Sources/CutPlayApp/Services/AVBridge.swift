@@ -117,14 +117,19 @@ enum ExportService {
     }
 }
 
+/// `NSImage` / `CGImage` are not Sendable; this box lets the generator finish off the main actor.
+struct SendableCGImage: @unchecked Sendable {
+    let image: CGImage
+}
+
 enum Thumbnailer {
-    static func image(for url: URL, at seconds: Double = 1, maxSize: CGSize = CGSize(width: 240, height: 136)) async -> NSImage? {
+    static func image(for url: URL, at seconds: Double = 1, maxSize: CGSize = CGSize(width: 240, height: 136)) async -> SendableCGImage? {
         let asset = AVURLAsset(url: url)
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         generator.maximumSize = maxSize
         guard let (cg, _) = try? await generator.image(at: CMTime(seconds: seconds, preferredTimescale: 600)) else { return nil }
-        return NSImage(cgImage: cg, size: NSSize(width: cg.width, height: cg.height))
+        return SendableCGImage(image: cg)
     }
 }
 #endif

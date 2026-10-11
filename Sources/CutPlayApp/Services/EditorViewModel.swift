@@ -148,7 +148,7 @@ final class EditorViewModel {
                 guard !Task.isCancelled else { return }
                 _ = url.startAccessingSecurityScopedResource()
                 defer { url.stopAccessingSecurityScopedResource() }
-                var asset = try await importer.makeAsset(for: url)
+                let asset = try await importer.makeAsset(for: url)
                 if session.project.assets.contains(where: { $0.sourceURL == url }) { continue }
                 session.addAsset(asset)
                 selectedAssetID = asset.id
@@ -165,10 +165,11 @@ final class EditorViewModel {
                     return dir.appendingPathComponent("\(assetID.uuidString)-\(suffix)")
                 }
                 do {
-                    let output = try await pipeline.analyze(asset, cacheURL: cache) { [weak self] state in
+                    let vm = self
+                    let output = try await pipeline.analyze(asset, cacheURL: cache) { state in
                         Task { @MainActor in
-                            self?.session.updateAsset(assetID) { $0.analysis = state }
-                            self?.touch()
+                            vm.session.updateAsset(assetID) { $0.analysis = state }
+                            vm.touch()
                         }
                     }
                     session.updateAsset(asset.id) { a in
@@ -195,9 +196,12 @@ final class EditorViewModel {
     }
 
     func loadThumbnail(_ asset: MediaAsset) {
+        let id = asset.id
+        let url = asset.playbackURL
         Task {
-            let image = await Thumbnailer.image(for: asset.playbackURL)
-            thumbnails[asset.id] = image
+            guard let payload = await Thumbnailer.image(for: url) else { return }
+            let cg = payload.image
+            thumbnails[id] = NSImage(cgImage: cg, size: NSSize(width: cg.width, height: cg.height))
         }
     }
 
@@ -213,7 +217,11 @@ final class EditorViewModel {
 
     func splitAtPlayhead() {
         let t = playhead
-        session.edit("切開") { try $0.split(at: t) }
+        do {
+            try session.edit("切開") { try $0.split(at: t) }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
         touch()
         rebuildPreview()
         scheduleSave()
@@ -235,7 +243,7 @@ final class EditorViewModel {
                 guard token == compositionToken else { return }
                 let item = AVPlayerItem(asset: composition)
                 previewPlayer.replaceCurrentItem(with: item)
-                previewPlayer.seek(to: playhead.cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                await previewPlayer.seek(to: playhead.cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
             } catch {
                 if clips.isEmpty { previewPlayer.replaceCurrentItem(with: nil) }
             }
@@ -262,7 +270,7 @@ final class EditorViewModel {
 
     func seek(_ time: MediaTime) {
         playhead = time
-        previewPlayer.seek(to: time.cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
+        Task { await previewPlayer.seek(to: time.cmTime, toleranceBefore: .zero, toleranceAfter: .zero) }
     }
 
     func seekToTranscript(_ segment: AnalysisSegment) {
