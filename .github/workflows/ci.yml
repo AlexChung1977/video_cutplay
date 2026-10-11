@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main, cursor/**]
+  pull_request:
+
+jobs:
+  linux-tests:
+    name: Linux tests (CutPlayCore + CutPlayMedia)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ffmpeg
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ffmpeg
+      - name: Test
+        run: swift test
+      - name: Linux app stub builds
+        run: swift build --product CutPlayApp
+
+  macos-build:
+    name: macOS test + app build
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: swift test
+      - name: Build CutPlayApp
+        run: swift build --product CutPlayApp
