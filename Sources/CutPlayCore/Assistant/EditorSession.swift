@@ -234,10 +234,3 @@ public final class EditorSession {
         messages[i].content = .proposal(p, message: m, state: state)
     }
 }
-
-extension ChatMessage {
-    var undoID: UUID? {
-        if case .proposal(_, _, .applied(let id, _)) = content { return id }
-        return nil
-    }
-}

@@ -13,7 +13,11 @@ let package = Package(
     targets: [
         .target(name: "CutPlayCore"),
         .target(name: "CutPlayMedia", dependencies: ["CutPlayCore"]),
-        .executableTarget(name: "CutPlayApp", dependencies: ["CutPlayCore", "CutPlayMedia"]),
+        .executableTarget(
+            name: "CutPlayApp",
+            dependencies: ["CutPlayCore", "CutPlayMedia"],
+            exclude: ["Resources"]
+        ),
         .testTarget(name: "CutPlayCoreTests", dependencies: ["CutPlayCore"]),
         .testTarget(name: "CutPlayMediaTests", dependencies: ["CutPlayMedia"]),
     ]

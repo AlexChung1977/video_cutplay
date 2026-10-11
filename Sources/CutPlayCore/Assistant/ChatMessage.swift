@@ -49,4 +49,9 @@ public struct ChatMessage: Codable, Hashable, Identifiable, Sendable {
         case .notFound(let m, _): return m
         }
     }
+
+    public var undoID: UUID? {
+        if case .proposal(_, _, .applied(let id, _)) = content { return id }
+        return nil
+    }
 }
