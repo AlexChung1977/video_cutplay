@@ -31,12 +31,15 @@ public struct MediaProbe: Codable, Hashable, Sendable {
     /// ffprobe `format_name`, e.g. `mov,mp4,m4a,3gp,3g2,mj2` or `matroska,webm`.
     public var container: String
     public var duration: MediaTime
+    /// Container start time. ffmpeg filter timestamps include it; asset time is relative to it.
+    public var startTime: MediaTime
     public var streams: [MediaStreamInfo]
     public var bitRate: Int?
 
-    public init(container: String, duration: MediaTime, streams: [MediaStreamInfo], bitRate: Int? = nil) {
+    public init(container: String, duration: MediaTime, startTime: MediaTime = .zero, streams: [MediaStreamInfo], bitRate: Int? = nil) {
         self.container = container
         self.duration = duration
+        self.startTime = startTime
         self.streams = streams
         self.bitRate = bitRate
     }
