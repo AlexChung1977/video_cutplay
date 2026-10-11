@@ -2,6 +2,7 @@
 import SwiftUI
 import CutPlayCore
 
+@MainActor
 struct SettingsView: View {
     @Environment(EditorViewModel.self) private var editor
 

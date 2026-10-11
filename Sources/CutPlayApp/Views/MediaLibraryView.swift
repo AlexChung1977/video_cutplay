@@ -2,6 +2,7 @@
 import SwiftUI
 import CutPlayCore
 
+@MainActor
 struct MediaLibraryView: View {
     @Environment(EditorViewModel.self) private var editor
     @State private var query = ""

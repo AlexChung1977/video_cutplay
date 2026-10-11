@@ -2,6 +2,7 @@
 import SwiftUI
 import CutPlayCore
 
+@MainActor
 struct TimelineView: View {
     @Environment(EditorViewModel.self) private var editor
     @State private var pixelsPerSecond: CGFloat = 24

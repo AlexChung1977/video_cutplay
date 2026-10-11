@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import CutPlayCore
 
+@MainActor
 struct EditorCommands: Commands {
     var editor: EditorViewModel
 

@@ -2,6 +2,7 @@
 import SwiftUI
 import AVKit
 
+@MainActor
 struct PlayerView: NSViewRepresentable {
     var player: AVPlayer
 

@@ -2,6 +2,7 @@
 import SwiftUI
 import CutPlayCore
 
+@MainActor
 struct ChatPanel: View {
     @Environment(EditorViewModel.self) private var editor
     @State private var draft = ""
@@ -83,6 +84,7 @@ struct ChatPanel: View {
     }
 }
 
+@MainActor
 struct MessageBubble: View {
     @Environment(EditorViewModel.self) private var editor
     var message: ChatMessage
@@ -130,6 +132,7 @@ struct MessageBubble: View {
     }
 }
 
+@MainActor
 struct ProposalCard: View {
     @Environment(EditorViewModel.self) private var editor
     var messageID: UUID

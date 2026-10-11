@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import CutPlayCore
 
+@MainActor
 struct MainWindow: View {
     @Environment(EditorViewModel.self) private var editor
     @State private var transcriptWidth: CGFloat = 290
@@ -102,6 +103,7 @@ struct MainWindow: View {
     }
 }
 
+@MainActor
 struct PreviewPane: View {
     @Environment(EditorViewModel.self) private var editor
 

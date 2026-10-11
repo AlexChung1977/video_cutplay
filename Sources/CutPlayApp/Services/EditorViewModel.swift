@@ -167,7 +167,7 @@ final class EditorViewModel {
                 do {
                     let output = try await pipeline.analyze(asset, cacheURL: cache) { [weak self] state in
                         Task { @MainActor in
-                            self?.session.updateAsset(asset.id) { $0.analysis = state }
+                            self?.session.updateAsset(assetID) { $0.analysis = state }
                             self?.touch()
                         }
                     }
@@ -212,7 +212,8 @@ final class EditorViewModel {
     }
 
     func splitAtPlayhead() {
-        session.edit("切開") { try $0.split(at: playhead) }
+        let t = playhead
+        session.edit("切開") { try $0.split(at: t) }
         touch()
         rebuildPreview()
         scheduleSave()
@@ -228,7 +229,7 @@ final class EditorViewModel {
         let token = compositionToken
         let clips = session.project.sequence.clips
         let assets = Dictionary(uniqueKeysWithValues: session.project.assets.map { ($0.id, $0) })
-        Task {
+        Task { @MainActor in
             do {
                 let composition = try await CompositionBuilder.build(clips, assets: assets)
                 guard token == compositionToken else { return }
